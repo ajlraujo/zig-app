@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 
-export default function Index() {
+export default function AddScreen() {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.text}>Hello World!</Text>
