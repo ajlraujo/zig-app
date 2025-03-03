@@ -6,7 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 export default function AddEventScreen() {
 	const [title, setTitle] = useState('');
 	const [startDate, setStartDate] = useState((new Date()));
-	const [endDate, setEndDate] = useState((new Date()));
+	const [endDate, setEndDate] = useState((new Date(startDate.getTime() + 60 * 60 * 1000)));
 	const [showPicker, setShowPicker] = useState({ active: false, type: null });
 	const [capacity, setCapacity] = useState('');
 	const [location, setLocation] = useState('');
