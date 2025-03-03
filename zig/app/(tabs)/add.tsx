@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Alert, ScrollView } from "react-native";
+import { Alert, ScrollView, View, Image, TouchableOpacity } from "react-native";
 import { Button, Card, IconButton, Dialog, Portal, Provider, Text, TextInput } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function AddEventScreen() {
-	const [images, setImages] = useState<string[]>([]);
+	const [image, setImage] = useState<string[]>([]);
 	const [title, setTitle] = useState('');
 	const [startDate, setStartDate] = useState((new Date()));
 	const [endDate, setEndDate] = useState((new Date(startDate.getTime() + 60 * 60 * 1000)));
@@ -37,8 +37,12 @@ export default function AddEventScreen() {
 		});
 
 		if (!result.canceled) {
-			setImages((prevImages) => [...prevImages, ...result.assets.map((asset) => asset.uri)]);
+			setImage(result.assets[0].uri);
 		}
+	};
+
+	const removeImage = (index: number) => {
+		setImage(null);
 	};
 
 	const onChange = (event, selectedDate) => {
@@ -103,13 +107,23 @@ export default function AddEventScreen() {
 		<ScrollView style={{ padding: 20 }}>
 			<Text style={{ fontSize: 24, marginBottom: 10 }}>Novo Rolê</Text>
 
-			{images.map((uri, index) => (
-				<Card key={index}>
-					<Card.Cover source={{ uri }} />
-				</Card>
-			))}
-
-			<IconButton icon="image-plus" size={24} onPress={pickImage} />
+			<View style={{ flex: 1, alignItems: 'center', marginVertical: 20 }}>
+				<TouchableOpacity onPress={pickImage} style={{ position: 'relative' }}>
+					<View style={{ width: 200, height: 200, borderRadius: 10, backgroundColor: '#e0e0e0', alignItems: 'center', justifyContent: 'center' }}>
+						{image ? (
+							<Image source={{ uri: image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
+						) : (
+							<Text>Adicionar Imagem</Text>
+						)}
+					</View>
+					<IconButton
+						icon="image-plus"
+						size={18}
+						style={{ position: 'absolute', bottom: 10, right: 10, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 20 }}
+						iconColor="white"
+					/>
+				</TouchableOpacity>
+			</View>
 
 			<Button mode="outlined" onPress={() => showDialog('title')}>
 				{title || 'Adicionar Título'}
@@ -144,7 +158,7 @@ export default function AddEventScreen() {
 				Criar Rolê
 			</Button>
 
-			<Dialog visible={visible} onDismiss={() => setVisible}>
+			<Dialog visible={visible} onDismiss={() => hideDialog}>
 				<Dialog.Title>
 					{dialogType === 'title' ? 'Editar título' :
 						dialogType === 'location' ? 'Adicionar local' :
