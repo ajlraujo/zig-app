@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Alert, ScrollView, View, Image, TouchableOpacity } from "react-native";
+import { Alert, ScrollView, View, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Button, Card, IconButton, Dialog, Portal, Provider, Text, TextInput } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
@@ -104,84 +104,204 @@ export default function AddEventScreen() {
 	};
 
 	return (
-		<ScrollView style={{ padding: 20 }}>
-			<Text style={{ fontSize: 24, marginBottom: 10 }}>Novo Rolê</Text>
+		<Provider>
+			<ScrollView style={styles.container}>
+				<Text style={styles.title}>Criar rolê</Text>
 
-			<View style={{ flex: 1, alignItems: 'center', marginVertical: 20 }}>
-				<TouchableOpacity onPress={pickImage} style={{ position: 'relative' }}>
-					<View style={{ width: 200, height: 200, borderRadius: 10, backgroundColor: '#e0e0e0', alignItems: 'center', justifyContent: 'center' }}>
-						{image ? (
-							<Image source={{ uri: image }} style={{ width: 200, height: 200, borderRadius: 10 }} />
-						) : (
-							<Text>Adicionar Imagem</Text>
-						)}
-					</View>
-					<IconButton
-						icon="image-plus"
-						size={18}
-						style={{ position: 'absolute', bottom: 10, right: 10, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 20 }}
-						iconColor="white"
-					/>
+				<View style={styles.imageContainer}>
+					<TouchableOpacity onPress={pickImage} style={{ position: 'relative' }}>
+						<View style={styles.imageWrapper}>
+							{image ? <Image source={{ uri: image }} style={styles.image} /> : <Text>Adicionar Imagem</Text>}
+						</View>
+						<IconButton icon="image-plus" size={18} style={styles.addButton} iconColor="white" />
+					</TouchableOpacity>
+				</View>
+
+				<TouchableOpacity onPress={() => showDialog('title')} style={styles.titleButton}>
+					<Text style={styles.titleText}>{title || 'Adicionar Título'}</Text>
 				</TouchableOpacity>
-			</View>
 
-			<Button mode="outlined" onPress={() => showDialog('title')}>
-				{title || 'Adicionar Título'}
-			</Button>
+				<TouchableOpacity style={styles.touchableButton}>
+					<View style={styles.buttonContent}>
+						<IconButton icon="clock" size={18} style={styles.icon} />
+						<Text style={styles.buttonText}>Início:</Text>
+						<DateTimePicker
+							value={startDate}
+							mode="datetime"
+							display="default"
+							onChange={(event, selectedDate) => {
+								if (selectedDate) setStartDate(selectedDate);
+							}}
+							style={{ flex: 1 }}
+						/>
+					</View>
+				</TouchableOpacity>
 
-			<Button mode="outlined" onPress={() => showDatePicker('start')} style={{ marginTop: 10 }}>
-				Começo: {formatDate(startDate)}
-			</Button>
+				<TouchableOpacity style={styles.touchableButton}>
+					<View style={styles.buttonContent}>
+						<IconButton icon="clock-outline" size={18} style={styles.icon} />
+						<Text style={styles.buttonText}>Fim:</Text>
+						<DateTimePicker
+							value={endDate}
+							mode="datetime"
+							display="default"
+							onChange={(event, selectedDate) => {
+								if (selectedDate) setEndDate(selectedDate);
+							}}
+							style={{ flex: 1 }}
+						/>
+					</View>
+				</TouchableOpacity>
 
-			<Button mode="outlined" onPress={() => showDatePicker('end')} style={{ marginTop: 10 }}>
-				Fim: {formatDate(endDate)}
-			</Button>
-
-			{showPicker.active && (
-				<DateTimePicker
-					value={showPicker.type === 'start' ? startDate : endDate}
-					mode="datetime"
-					display="default"
-					onChange={onChange}
-				/>
-			)}
-
-			<Button icon="map-marker" mode="outlined" onPress={() => showDialog('location')} style={{ marginTop: 10 }}>
-				{location || 'Adicionar Localização'}
-			</Button>
-
-			<Button icon="file-document" mode="outlined" onPress={() => showDialog('description')} style={{ marginTop: 10 }}>
-				{description || 'Adicionar Descrição'}
-			</Button>
-
-			<Button mode="contained" style={{ marginTop: 10 }}>
-				Criar Rolê
-			</Button>
-
-			<Dialog visible={visible} onDismiss={() => hideDialog}>
-				<Dialog.Title>
-					{dialogType === 'title' ? 'Editar título' :
-						dialogType === 'location' ? 'Adicionar local' :
-							'Adicionar Descrição'}
-				</Dialog.Title>
-
-				<Dialog.Content>
-					<TextInput
-						placeholder={
-							dialogType === 'title' ? 'Digite o título' :
-								dialogType === 'location' ? 'Digite o local' :
-									'Digite a descrição'}
-						value={getValue()}
-						onChangeText={setValue}
+				{showPicker.active && (
+					<DateTimePicker
+						value={showPicker.type === 'start' ? startDate : endDate}
+						mode="datetime"
+						display="default"
+						onChange={onChange}
 					/>
-				</Dialog.Content>
+				)}
 
-				<Dialog.Actions>
-					<Button onPress={hideDialog}>Cancelar</Button>
-					<Button onPress={hideDialog}>Salvar</Button>
-				</Dialog.Actions>
-			</Dialog>
+				<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('location')}>
+					<View style={styles.buttonContent}>
+						<IconButton icon="map-marker" size={20} style={styles.icon} />
+						<Text style={styles.buttonText}>{location || 'Adicionar Localização'}</Text>
+					</View>
+				</TouchableOpacity>
 
-		</ScrollView>
+				<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('description')}>
+					<View style={styles.buttonContent}>
+						<IconButton icon="file-document" size={20} style={styles.icon} />
+						<Text style={styles.buttonText}>{description || 'Adicionar Descrição'}</Text>
+					</View>
+				</TouchableOpacity>
+
+				<TouchableOpacity style={styles.createButton}>
+					<Text style={styles.createButtonText}>Criar Rolê</Text>
+				</TouchableOpacity>
+
+				<Portal>
+					<Dialog visible={visible} onDismiss={() => hideDialog}>
+						<Dialog.Title>
+							{dialogType === 'title' ? 'Editar título' :
+								dialogType === 'location' ? 'Adicionar local' :
+									'Adicionar Descrição'}
+						</Dialog.Title>
+						<Dialog.Content>
+							<TextInput
+								placeholder={
+									dialogType === 'title' ? 'Digite o título' :
+										dialogType === 'location' ? 'Digite o local' :
+											'Digite a descrição'}
+								value={getValue()}
+								onChangeText={setValue}
+							/>
+						</Dialog.Content>
+
+						<Dialog.Actions>
+							<Button onPress={hideDialog}>Cancelar</Button>
+							<Button onPress={hideDialog}>Salvar</Button>
+						</Dialog.Actions>
+
+					</Dialog>
+				</Portal>
+			</ScrollView >
+		</Provider>
 	);
 };
+
+export const styles = StyleSheet.create({
+	container: {
+		padding: 20,
+	},
+	title: {
+		fontSize: 18.75,
+		marginVertical: 20,
+		textAlign: 'center',
+		color: "#242424",
+		fontWeight: 'medium',
+		fontFamily: 'sans-serif',
+	},
+	imageContainer: {
+		flex: 1,
+		alignItems: "center",
+		marginBottom: 15,
+	},
+	imageWrapper: {
+		width: 200,
+		height: 200,
+		borderRadius: 15,
+		backgroundColor: "#e0e0e0",
+		alignItems: "center",
+		justifyContent: "center",
+		position: "relative",
+	},
+	image: {
+		width: 200,
+		height: 200,
+		borderRadius: 10,
+	},
+	addButton: {
+		position: "absolute",
+		bottom: 5,
+		right: 5,
+		backgroundColor: "rgba(0,0,0,0.5)",
+		borderRadius: 20,
+	},
+	titleText: {
+		fontSize: 23.44,
+		fontWeight: "bold",
+		color: "#B0B0B0",
+	},
+	bodyText: {
+		fontSize: 18.75,
+		fontWeight: "regular",
+		color: "#B0B0B0",
+	},
+	touchableButton: {
+		backgroundColor: '#ffffff',
+		borderRadius: 10,
+		marginTop: 10,
+		alignSelf: 'stretch',
+		minHeight: 42,
+		justifyContent: 'center',
+		paddingHorizontal: 15,
+		alignItems: 'flex-start',
+	},
+	titleButton: {
+		backgroundColor: '#ffffff',
+		borderRadius: 10,
+		marginTop: 10,
+		alignSelf: 'stretch',
+		minHeight: 50,
+		justifyContent: 'center',
+		paddingHorizontal: 15,
+		alignItems: 'flex-start',
+	},
+	createButton: {
+		marginTop: 50,
+		backgroundColor: '#6200ee',
+		borderRadius: 25,
+		alignSelf: 'stretch',
+		minHeight: 50,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	createButtonText: {
+		fontSize: 18,
+		fontWeight: 'bold',
+		color: '#ffffff',
+	},
+	buttonContent: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	icon: {
+		marginRight: 5,
+		marginLeft: -8,
+	},
+	buttonText: {
+		fontSize: 18,
+		color: '#B0B0B0',
+	},
+});
