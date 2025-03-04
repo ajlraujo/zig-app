@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
-import { IconButton } from 'react-native-paper';
+import { IconButton, Button } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -96,7 +96,7 @@ export default function AddEventScreen() {
 
 					{/* Título */}
 					<TouchableOpacity style={styles.titleButton} onPress={() => showDialog('title', title)}>
-						<Text style={[styles.titleText, { color: title ? '#404040' : '#B0B0B0' }]}>
+						<Text style={[styles.titleText, { color: title ? '#3C3C3C' : '#B0B0B0' }]}>
 							{title || 'Adicionar Título'}
 						</Text>
 					</TouchableOpacity>
@@ -176,6 +176,18 @@ export default function AddEventScreen() {
 							</Text>
 						</View>
 					</TouchableOpacity>
+
+					<View style={styles.buttonContainer}>
+						<Button
+							mode="contained"
+							onPress={handleConfirm}
+							disabled={!isFormComplete}
+							style={styles.createButton}
+							labelStyle={styles.createButtonText}
+						>
+							Publicar
+						</Button>
+					</View>
 
 					<InputDialog
 						visible={visible}

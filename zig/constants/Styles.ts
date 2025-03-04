@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
 		fontSize: 20,
 		fontWeight: 'bold',
 		textAlign: 'center',
-		color: '#222905',
+		color: '#3C3C3C',
 	},
 	gradientBackground: {
 		flex: 1,
@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
 		position: 'absolute',
 		bottom: 5,
 		right: 5,
-		backgroundColor: 'rgba(201, 201, 201, 0.3)',
+		backgroundColor: 'rgba(149, 149, 149, 0.3)',
 		borderRadius: 20,
 	},
 	titleText: {
@@ -78,7 +78,7 @@ export const styles = StyleSheet.create({
 	},
 	createButton: {
 		marginTop: 50,
-		backgroundColor: '#242424',
+		backgroundColor: '#191919',
 		borderRadius: 25,
 		alignSelf: 'stretch',
 		minHeight: 50,
@@ -87,7 +87,7 @@ export const styles = StyleSheet.create({
 	},
 	createButtonText: {
 		fontSize: 18,
-		fontWeight: 'bold',
+		fontWeight: 'semibold',
 		color: '#f1f1f1',
 	},
 	buttonContent: {
@@ -122,5 +122,7 @@ export const styles = StyleSheet.create({
 		color: '#404040',
 		fontSize: 18.75,
 		fontWeight: '500',
+	},
+	buttonContainer: {
 	},
 });

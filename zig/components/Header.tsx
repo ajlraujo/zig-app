@@ -14,17 +14,12 @@ const Header = ({ isFormComplete, onConfirm }: HeaderProps) => {
 		<Appbar.Header style={styles.appBar}>
 			<Appbar.Action
 				icon="close"
-				iconColor="rgba(34, 41, 5, 0.3)"
+				iconColor='#3C3C3C'
 				onPress={() => router.push('/')}
 			/>
 			<Appbar.Content
 				title="Criar Rolê"
 				titleStyle={styles.headerTitle}
-			/>
-			<Appbar.Action
-				icon="check"
-				iconColor={isFormComplete ? '#222905' : 'rgba(34, 41, 5, 0.3)'}
-				onPress={onConfirm}
 			/>
 		</Appbar.Header>
 	);

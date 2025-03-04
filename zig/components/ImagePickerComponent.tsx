@@ -40,14 +40,14 @@ const ImagePickerComponent = ({ image, setImage }: ImagePickerComponentProps) =>
 					{image ? (
 						<Image source={{ uri: image }} style={styles.image} />
 					) : (
-						<Text>Adicionar Imagem</Text>
+						<Text></Text>
 					)}
 				</View>
 				<IconButton
 					icon="image-plus"
 					size={18}
 					style={styles.addButton}
-					iconColor="#212121"
+					iconColor='#3C3C3C'
 				/>
 			</TouchableOpacity>
 		</View>
