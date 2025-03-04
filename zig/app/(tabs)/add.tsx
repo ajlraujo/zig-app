@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Alert, ScrollView, View, Image, TouchableOpacity, StyleSheet } from "react-native";
-import { Button, Card, IconButton, Dialog, Portal, Provider, Text, TextInput } from 'react-native-paper';
+import { Button, Card, IconButton, Dialog, Portal, Provider, Text, TextInput, Appbar } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AddEventScreen() {
 	const [image, setImage] = useState<string[]>([]);
@@ -15,6 +16,7 @@ export default function AddEventScreen() {
 	const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 	const [visible, setVisible] = useState(false);
 	const [dialogType, setDialogType] = useState<'title' | 'location' | 'description' | null>(null);
+	const [tempValue, setTempValue] = useState('');
 
 	useEffect(() => {
 		(async () => {
@@ -41,10 +43,6 @@ export default function AddEventScreen() {
 		}
 	};
 
-	const removeImage = (index: number) => {
-		setImage(null);
-	};
-
 	const onChange = (event, selectedDate) => {
 		if (event.type === 'dismissed' || selectedDate === undefined) {
 			setShowPicker({ active: false, type: null });
@@ -58,14 +56,9 @@ export default function AddEventScreen() {
 		setShowPicker({ active: false, type: null });
 	};
 
-	const showDatePicker = (type) => {
-		setShowPicker({ active: true, type });
-	};
-
-	const formatDate = (date) => date.toLocaleString();
-
 	const showDialog = (type) => {
 		setDialogType(type);
+		setTempValue(getValue());
 		setVisible(true);
 	};
 
@@ -87,151 +80,175 @@ export default function AddEventScreen() {
 		}
 	};
 
-	const setValue = (text) => {
-		switch (dialogType) {
-			case 'title':
-				setTitle(text);
-				break;
-			case 'location':
-				setLocation(text);
-				break;
-			case 'description':
-				setDescription(text);
-				break;
-			default:
-				break;
+	const saveDialogValue = () => {
+		if (dialogType === 'title') {
+			setTitle(tempValue);
+		} else if (dialogType === 'location') {
+			setLocation(tempValue);
+		} else if (dialogType === 'description') {
+			setDescription(tempValue);
 		}
+		hideDialog();
 	};
 
 	return (
 		<Provider>
-			<ScrollView style={styles.container}>
-				<Text style={styles.title}>Criar rolê</Text>
+			<View style={styles.header}>
+				<Appbar.Header style={styles.appBar}>
+					<Appbar.Action icon="close" iconColor='#707070' onPress={() => console.log('Cancelar')} />
+					<Appbar.Content title="Criar Rolê" titleStyle={styles.headerTitle} />
+					<Appbar.Action icon="check" iconColor='#707070' onPress={() => console.log('Publicar')} />
+				</Appbar.Header>
+			</View>
 
-				<View style={styles.imageContainer}>
-					<TouchableOpacity onPress={pickImage} style={{ position: 'relative' }}>
-						<View style={styles.imageWrapper}>
-							{image ? <Image source={{ uri: image }} style={styles.image} /> : <Text>Adicionar Imagem</Text>}
-						</View>
-						<IconButton icon="image-plus" size={18} style={styles.addButton} iconColor="white" />
+			<LinearGradient
+				colors={['#EEEED4', '#FFFFFF']}
+				style={styles.gradientBackground}
+			>
+				<ScrollView style={styles.container}>
+
+					<View style={styles.imageContainer}>
+						<TouchableOpacity onPress={pickImage} style={{ position: 'relative' }}>
+							<View style={styles.imageWrapper}>
+								{image ? <Image source={{ uri: image }} style={styles.image} /> : <Text>Adicionar Imagem</Text>}
+							</View>
+							<IconButton icon="image-plus" size={18} style={styles.addButton} iconColor="#212121" />
+						</TouchableOpacity>
+					</View>
+
+					<TouchableOpacity onPress={() => showDialog('title')} style={styles.titleButton}>
+						<Text style={[styles.titleText, { color: title ? '#707070' : '#B0B0B0' }]}>
+							{title || 'Adicionar Título'}
+						</Text>
 					</TouchableOpacity>
-				</View>
 
-				<TouchableOpacity onPress={() => showDialog('title')} style={styles.titleButton}>
-					<Text style={styles.titleText}>{title || 'Adicionar Título'}</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity style={styles.touchableButton}>
-					<View style={styles.buttonContent}>
-						<IconButton icon="clock" size={18} style={styles.icon} />
-						<Text style={styles.buttonText}>Início:</Text>
-						<DateTimePicker
-							value={startDate}
-							mode="datetime"
-							display="default"
-							onChange={(event, selectedDate) => {
-								if (selectedDate) setStartDate(selectedDate);
-							}}
-							style={{ flex: 1 }}
-						/>
-					</View>
-				</TouchableOpacity>
-
-				<TouchableOpacity style={styles.touchableButton}>
-					<View style={styles.buttonContent}>
-						<IconButton icon="clock-outline" size={18} style={styles.icon} />
-						<Text style={styles.buttonText}>Fim:</Text>
-						<DateTimePicker
-							value={endDate}
-							mode="datetime"
-							display="default"
-							onChange={(event, selectedDate) => {
-								if (selectedDate) setEndDate(selectedDate);
-							}}
-							style={{ flex: 1 }}
-						/>
-					</View>
-				</TouchableOpacity>
-
-				{showPicker.active && (
-					<DateTimePicker
-						value={showPicker.type === 'start' ? startDate : endDate}
-						mode="datetime"
-						display="default"
-						onChange={onChange}
-					/>
-				)}
-
-				<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('location')}>
-					<View style={styles.buttonContent}>
-						<IconButton icon="map-marker" size={20} style={styles.icon} />
-						<Text style={styles.buttonText}>{location || 'Adicionar Localização'}</Text>
-					</View>
-				</TouchableOpacity>
-
-				<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('description')}>
-					<View style={styles.buttonContent}>
-						<IconButton icon="file-document" size={20} style={styles.icon} />
-						<Text style={styles.buttonText}>{description || 'Adicionar Descrição'}</Text>
-					</View>
-				</TouchableOpacity>
-
-				<TouchableOpacity style={styles.createButton}>
-					<Text style={styles.createButtonText}>Criar Rolê</Text>
-				</TouchableOpacity>
-
-				<Portal>
-					<Dialog visible={visible} onDismiss={() => hideDialog}>
-						<Dialog.Title>
-							{dialogType === 'title' ? 'Editar título' :
-								dialogType === 'location' ? 'Adicionar local' :
-									'Adicionar Descrição'}
-						</Dialog.Title>
-						<Dialog.Content>
-							<TextInput
-								placeholder={
-									dialogType === 'title' ? 'Digite o título' :
-										dialogType === 'location' ? 'Digite o local' :
-											'Digite a descrição'}
-								value={getValue()}
-								onChangeText={setValue}
+					<TouchableOpacity style={styles.touchableButton}>
+						<View style={styles.buttonContent}>
+							<IconButton icon="clock" iconColor='#707070' size={18} style={styles.icon} />
+							<Text style={styles.buttonText}>Início:</Text>
+							<DateTimePicker
+								value={startDate}
+								mode="datetime"
+								display="default"
+								themeVariant="light"
+								onChange={(event, selectedDate) => {
+									if (selectedDate) setStartDate(selectedDate);
+								}}
+								style={{ flex: 1 }}
 							/>
-						</Dialog.Content>
+						</View>
+					</TouchableOpacity>
 
-						<Dialog.Actions>
-							<Button onPress={hideDialog}>Cancelar</Button>
-							<Button onPress={hideDialog}>Salvar</Button>
-						</Dialog.Actions>
+					<TouchableOpacity style={styles.touchableButton}>
+						<View style={styles.buttonContent}>
+							<IconButton icon="clock-outline" iconColor='#707070' size={18} style={styles.icon} />
+							<Text style={styles.buttonText}>Fim:</Text>
+							<DateTimePicker
+								value={endDate}
+								mode="datetime"
+								display="default"
+								themeVariant="light"
+								onChange={(event, selectedDate) => {
+									if (selectedDate) setEndDate(selectedDate);
+								}}
+								style={{ flex: 1 }}
+							/>
+						</View>
+					</TouchableOpacity>
 
-					</Dialog>
-				</Portal>
-			</ScrollView >
-		</Provider>
+					{showPicker.active && (
+						<DateTimePicker
+							value={showPicker.type === 'start' ? startDate : endDate}
+							mode="datetime"
+							display="default"
+							onChange={onChange}
+						/>
+					)}
+
+					<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('location')}>
+						<View style={styles.buttonContent}>
+							<IconButton icon="map-marker" iconColor={location ? '#707070' : '#B0B0B0'} size={20} style={styles.icon} />
+							<Text style={[styles.buttonText, { color: location ? '#707070' : '#B0B0B0' }]}>
+								{location || 'Adicionar Localização'}
+							</Text>
+						</View>
+					</TouchableOpacity>
+
+					<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('description')}>
+						<View style={styles.buttonContent}>
+							<IconButton icon="file-document" iconColor={description ? '#707070' : '#B0B0B0'} size={20} style={styles.icon} />
+							<Text style={[styles.buttonText, { color: description ? '#707070' : '#B0B0B0' }]}>
+								{description || 'Adicionar Descrição'}
+							</Text>
+						</View>
+					</TouchableOpacity>
+
+					<Portal>
+						<Dialog visible={visible} onDismiss={hideDialog}>
+							<Dialog.Title>
+								{dialogType === 'title' ? 'Editar título' :
+									dialogType === 'location' ? 'Adicionar local' :
+										'Adicionar Descrição'}
+							</Dialog.Title>
+							<Dialog.Content>
+								<TextInput
+									placeholder={
+										dialogType === 'title' ? 'Digite o título' :
+											dialogType === 'location' ? 'Digite o local' :
+												'Digite a descrição'}
+									value={tempValue}
+									onChangeText={(text) => setTempValue(text)}
+								/>
+							</Dialog.Content>
+
+							<Dialog.Actions>
+								<Button onPress={hideDialog}>Cancelar</Button>
+								<Button onPress={() => { saveDialogValue(); hideDialog(); }}>Salvar</Button>
+							</Dialog.Actions>
+
+						</Dialog>
+					</Portal>
+				</ScrollView >
+			</LinearGradient>
+		</Provider >
 	);
 };
 
 export const styles = StyleSheet.create({
-	container: {
-		padding: 20,
+	header: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		zIndex: 10,
 	},
-	title: {
-		fontSize: 18.75,
-		marginVertical: 20,
+	appBar: {
+		backgroundColor: '#EEEED4',
+		elevation: 0.8,
+	},
+	headerTitle: {
+		fontSize: 20,
+		fontWeight: 'bold',
 		textAlign: 'center',
 		color: "#242424",
-		fontWeight: 'medium',
-		fontFamily: 'sans-serif',
+	},
+	gradientBackground: {
+		flex: 1,
+	},
+	container: {
+		padding: 20,
 	},
 	imageContainer: {
 		flex: 1,
 		alignItems: "center",
-		marginBottom: 15,
+		marginBottom: 20,
+		marginTop: 80,
 	},
 	imageWrapper: {
 		width: 200,
 		height: 200,
 		borderRadius: 15,
-		backgroundColor: "#e0e0e0",
+		backgroundColor: 'rgba(201, 201, 201, 0.3)',
 		alignItems: "center",
 		justifyContent: "center",
 		position: "relative",
@@ -245,7 +262,7 @@ export const styles = StyleSheet.create({
 		position: "absolute",
 		bottom: 5,
 		right: 5,
-		backgroundColor: "rgba(0,0,0,0.5)",
+		backgroundColor: 'rgba(201, 201, 201, 0.3)',
 		borderRadius: 20,
 	},
 	titleText: {
@@ -253,15 +270,10 @@ export const styles = StyleSheet.create({
 		fontWeight: "bold",
 		color: "#B0B0B0",
 	},
-	bodyText: {
-		fontSize: 18.75,
-		fontWeight: "regular",
-		color: "#B0B0B0",
-	},
 	touchableButton: {
-		backgroundColor: '#ffffff',
+		backgroundColor: 'rgba(201, 201, 201, 0.3)',
 		borderRadius: 10,
-		marginTop: 10,
+		marginTop: 15,
 		alignSelf: 'stretch',
 		minHeight: 42,
 		justifyContent: 'center',
@@ -269,7 +281,7 @@ export const styles = StyleSheet.create({
 		alignItems: 'flex-start',
 	},
 	titleButton: {
-		backgroundColor: '#ffffff',
+		backgroundColor: 'rgba(201, 201, 201, 0.3)',
 		borderRadius: 10,
 		marginTop: 10,
 		alignSelf: 'stretch',
@@ -280,7 +292,7 @@ export const styles = StyleSheet.create({
 	},
 	createButton: {
 		marginTop: 50,
-		backgroundColor: '#6200ee',
+		backgroundColor: '#242424',
 		borderRadius: 25,
 		alignSelf: 'stretch',
 		minHeight: 50,
@@ -290,7 +302,7 @@ export const styles = StyleSheet.create({
 	createButtonText: {
 		fontSize: 18,
 		fontWeight: 'bold',
-		color: '#ffffff',
+		color: '#f1f1f1',
 	},
 	buttonContent: {
 		flexDirection: 'row',
@@ -302,6 +314,6 @@ export const styles = StyleSheet.create({
 	},
 	buttonText: {
 		fontSize: 18,
-		color: '#B0B0B0',
+		color: '#707070',
 	},
 });
