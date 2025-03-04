@@ -48,7 +48,7 @@ export const styles = StyleSheet.create({
 		position: 'absolute',
 		bottom: 5,
 		right: 5,
-		backgroundColor: 'rgba(149, 149, 149, 0.3)',
+		backgroundColor: 'rgba(201, 201, 201, 0.3)',
 		borderRadius: 20,
 	},
 	titleText: {
@@ -101,7 +101,7 @@ export const styles = StyleSheet.create({
 	buttonText: {
 		fontSize: 18,
 		color: '#9C9C9C',
-		fontWeight: '500',
+		fontWeight: 'semibold',
 	},
 	dialogContainer: {
 		backgroundColor: '#FCFCFC',
@@ -115,8 +115,7 @@ export const styles = StyleSheet.create({
 	},
 	dialogInput: {
 		backgroundColor: '#F0F0F0',
-		padding: 5,
-		fontSize: 15,
+		fontSize: 18.75,
 	},
 	dialogButton: {
 		color: '#404040',

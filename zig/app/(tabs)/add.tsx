@@ -51,11 +51,11 @@ export default function AddEventScreen() {
 	const getDialogTitle = (): string => {
 		switch (dialogType as DialogType) {
 			case 'title':
-				return 'Editar título';
+				return 'Adicionar título';
 			case 'location':
-				return 'Adicionar local';
+				return 'Adicionar localização';
 			case 'description':
-				return 'Adicionar Descrição';
+				return 'Adicionar descrição';
 			default:
 				return '';
 		}
@@ -64,11 +64,11 @@ export default function AddEventScreen() {
 	const getPlaceholder = (): string => {
 		switch (dialogType as DialogType) {
 			case 'title':
-				return 'Digite o título';
+				return 'Digite aqui';
 			case 'location':
-				return 'Digite o local';
+				return 'Digite aqui';
 			case 'description':
-				return 'Digite a descrição';
+				return 'Digite aqui';
 			default:
 				return '';
 		}
@@ -97,7 +97,7 @@ export default function AddEventScreen() {
 					{/* Título */}
 					<TouchableOpacity style={styles.titleButton} onPress={() => showDialog('title', title)}>
 						<Text style={[styles.titleText, { color: title ? '#3C3C3C' : '#B0B0B0' }]}>
-							{title || 'Adicionar Título'}
+							{title || 'Nome do rolê'}
 						</Text>
 					</TouchableOpacity>
 
@@ -157,7 +157,7 @@ export default function AddEventScreen() {
 								style={styles.icon}
 							/>
 							<Text style={[styles.buttonText, { color: location ? '#404040' : '#9C9C9C' }]}>
-								{location || 'Adicionar Localização'}
+								{location || 'Onde vai acontecer?'}
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -172,7 +172,7 @@ export default function AddEventScreen() {
 								style={styles.icon}
 							/>
 							<Text style={[styles.buttonText, { color: '#9C9C9C' }]}>
-								{description || 'Adicionar Descrição'}
+								{description || 'O que vai rolar?'}
 							</Text>
 						</View>
 					</TouchableOpacity>
