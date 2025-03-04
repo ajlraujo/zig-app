@@ -4,6 +4,7 @@ import { Button, Card, IconButton, Dialog, Portal, Provider, Text, TextInput, Ap
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 
 export default function AddEventScreen() {
 	const [image, setImage] = useState<string[]>([]);
@@ -17,6 +18,7 @@ export default function AddEventScreen() {
 	const [visible, setVisible] = useState(false);
 	const [dialogType, setDialogType] = useState<'title' | 'location' | 'description' | null>(null);
 	const [tempValue, setTempValue] = useState('');
+	const router = useRouter();
 
 	useEffect(() => {
 		(async () => {
@@ -33,7 +35,6 @@ export default function AddEventScreen() {
 
 		const result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: ImagePicker.MediaTypeOptions.Images,
-			allowsMultipleSelection: true,
 			aspect: [4, 3],
 			quality: 1,
 		});
@@ -58,13 +59,21 @@ export default function AddEventScreen() {
 
 	const showDialog = (type) => {
 		setDialogType(type);
-		setTempValue(getValue());
+
+		if (type === 'title') {
+			setTempValue(title);
+		} else if (type === 'location') {
+			setTempValue(location);
+		} else if (type === 'description') {
+			setTempValue(description);
+		}
+
 		setVisible(true);
 	};
 
 	const hideDialog = () => {
-		setDialogType(null);
 		setVisible(false);
+		setDialogType(null);
 	};
 
 	const getValue = () => {
@@ -95,9 +104,9 @@ export default function AddEventScreen() {
 		<Provider>
 			<View style={styles.header}>
 				<Appbar.Header style={styles.appBar}>
-					<Appbar.Action icon="close" iconColor='#707070' onPress={() => console.log('Cancelar')} />
+					<Appbar.Action icon="close" iconColor='rgba(34, 41, 5, 0.3)' onPress={() => router.push('/')} />
 					<Appbar.Content title="Criar Rolê" titleStyle={styles.headerTitle} />
-					<Appbar.Action icon="check" iconColor='#707070' onPress={() => console.log('Publicar')} />
+					<Appbar.Action icon="check" iconColor={image && title && description && location ? '#222905' : 'rgba(34, 41, 5, 0.3)'} onPress={() => router.push('/')} />
 				</Appbar.Header>
 			</View>
 
@@ -117,14 +126,14 @@ export default function AddEventScreen() {
 					</View>
 
 					<TouchableOpacity onPress={() => showDialog('title')} style={styles.titleButton}>
-						<Text style={[styles.titleText, { color: title ? '#707070' : '#B0B0B0' }]}>
+						<Text style={[styles.titleText, { color: title ? '#404040' : '#B0B0B0' }]}>
 							{title || 'Adicionar Título'}
 						</Text>
 					</TouchableOpacity>
 
 					<TouchableOpacity style={styles.touchableButton}>
 						<View style={styles.buttonContent}>
-							<IconButton icon="clock" iconColor='#707070' size={18} style={styles.icon} />
+							<IconButton icon="clock" iconColor='#9C9C9C' size={18} style={styles.icon} />
 							<Text style={styles.buttonText}>Início:</Text>
 							<DateTimePicker
 								value={startDate}
@@ -141,7 +150,7 @@ export default function AddEventScreen() {
 
 					<TouchableOpacity style={styles.touchableButton}>
 						<View style={styles.buttonContent}>
-							<IconButton icon="clock-outline" iconColor='#707070' size={18} style={styles.icon} />
+							<IconButton icon="clock-outline" iconColor='#9C9C9C' size={18} style={styles.icon} />
 							<Text style={styles.buttonText}>Fim:</Text>
 							<DateTimePicker
 								value={endDate}
@@ -167,8 +176,8 @@ export default function AddEventScreen() {
 
 					<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('location')}>
 						<View style={styles.buttonContent}>
-							<IconButton icon="map-marker" iconColor={location ? '#707070' : '#B0B0B0'} size={20} style={styles.icon} />
-							<Text style={[styles.buttonText, { color: location ? '#707070' : '#B0B0B0' }]}>
+							<IconButton icon="map-marker" iconColor='#B0B0B0' size={20} style={styles.icon} />
+							<Text style={[styles.buttonText, { color: location ? '#404040' : '#9C9C9C' }]}>
 								{location || 'Adicionar Localização'}
 							</Text>
 						</View>
@@ -176,16 +185,16 @@ export default function AddEventScreen() {
 
 					<TouchableOpacity style={styles.touchableButton} onPress={() => showDialog('description')}>
 						<View style={styles.buttonContent}>
-							<IconButton icon="file-document" iconColor={description ? '#707070' : '#B0B0B0'} size={20} style={styles.icon} />
-							<Text style={[styles.buttonText, { color: description ? '#707070' : '#B0B0B0' }]}>
+							<IconButton icon="file-document" iconColor='#B0B0B0' size={20} style={styles.icon} />
+							<Text style={[styles.buttonText, { color: '#9C9C9C' }]}>
 								{description || 'Adicionar Descrição'}
 							</Text>
 						</View>
 					</TouchableOpacity>
 
 					<Portal>
-						<Dialog visible={visible} onDismiss={hideDialog}>
-							<Dialog.Title>
+						<Dialog visible={visible} onDismiss={hideDialog} style={styles.dialogContainer}>
+							<Dialog.Title style={styles.dialogTitle}>
 								{dialogType === 'title' ? 'Editar título' :
 									dialogType === 'location' ? 'Adicionar local' :
 										'Adicionar Descrição'}
@@ -198,12 +207,15 @@ export default function AddEventScreen() {
 												'Digite a descrição'}
 									value={tempValue}
 									onChangeText={(text) => setTempValue(text)}
+									style={styles.dialogInput}
+									activeUnderlineColor='#D1D1D1'
+									textColor='#404040'
 								/>
 							</Dialog.Content>
 
 							<Dialog.Actions>
-								<Button onPress={hideDialog}>Cancelar</Button>
-								<Button onPress={() => { saveDialogValue(); hideDialog(); }}>Salvar</Button>
+								<Button labelStyle={styles.dialogButton} onPress={hideDialog}>Cancelar</Button>
+								<Button labelStyle={styles.dialogButton} onPress={() => { saveDialogValue(); hideDialog(); }}>Salvar</Button>
 							</Dialog.Actions>
 
 						</Dialog>
@@ -230,7 +242,7 @@ export const styles = StyleSheet.create({
 		fontSize: 20,
 		fontWeight: 'bold',
 		textAlign: 'center',
-		color: "#242424",
+		color: '#222905',
 	},
 	gradientBackground: {
 		flex: 1,
@@ -314,6 +326,27 @@ export const styles = StyleSheet.create({
 	},
 	buttonText: {
 		fontSize: 18,
-		color: '#707070',
+		color: '#9C9C9C',
+		fontWeight: "500",
+	},
+	dialogContainer: {
+		backgroundColor: '#FCFCFC',
+		borderRadius: 30,
+		padding: 5,
+	},
+	dialogTitle: {
+		color: '#404040',
+		fontSize: 18.75,
+		fontWeight: 'bold',
+	},
+	dialogInput: {
+		backgroundColor: '#F0F0F0',
+		padding: 5,
+		fontSize: 15,
+	},
+	dialogButton: {
+		color: '#404040',
+		fontSize: 18.75,
+		fontWeight: '500',
 	},
 });
