@@ -30,7 +30,7 @@ Para rodar o projeto localmente, siga os passos abaixo.
 
 ```bash
 git clone https://github.com/seu-usuario/zig-app.git
-
+```
 ### 2. Instale as dependências\
 
 ```bash
