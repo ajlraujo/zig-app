@@ -36,21 +36,21 @@ git clone https://github.com/seu-usuario/zig-app.git
 ```bash
 cd zig-app
 npm install
-
+```
 ### 3. Configuração do Ambiente
 
 ```bash
 JWT_SECRET=
-
+```
 ### 4. Rode o servidor
 ```bash
 npm run dev
-
+```
 ### 5. Inicie o App
 
 ```bash
 npm start
-
+```
 ## 💡 Funcionalidades do MVP
 
 O MVP incluirá as seguintes funcionalidades:
