@@ -1,4 +1,4 @@
-# Zig - Catálogo de Experiências Locais
+# Zig - Viva o Local
 
 Zig é uma plataforma que conecta viajantes com moradores locais, oferecendo uma nova forma de vivenciar os destinos de forma autêntica e personalizada. Ao invés de seguir roteiros turísticos tradicionais, a Zig permite que os usuários vivenciem experiências exclusivas, criadas e oferecidas por moradores apaixonados por sua cidade.
 
