@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
 		zIndex: 10,
 	},
 	appBar: {
-		backgroundColor: '#EEEED4',
+		backgroundColor: 'rgba(250, 248, 245, 0.5)',
 		elevation: 0.8,
 	},
 	headerTitle: {
@@ -23,6 +23,7 @@ export const styles = StyleSheet.create({
 	},
 	container: {
 		padding: 20,
+		marginBottom: 20,
 	},
 	imageContainer: {
 		flex: 1,
@@ -52,13 +53,17 @@ export const styles = StyleSheet.create({
 		borderRadius: 20,
 	},
 	titleText: {
-		fontSize: 23.44,
-		fontWeight: 'bold',
-		color: '#B0B0B0',
+		fontSize: 29.3,
+		fontWeight: '600',
+		marginHorizontal: 16,
+		paddingHorizontal: 8,
+		backgroundColor: 'transparent',
+		includeFontPadding: false,
+		textAlignVertical: 'center',
 	},
 	touchableButton: {
 		backgroundColor: 'rgba(201, 201, 201, 0.3)',
-		borderRadius: 10,
+		borderRadius: 30,
 		marginTop: 15,
 		alignSelf: 'stretch',
 		minHeight: 42,
@@ -78,7 +83,7 @@ export const styles = StyleSheet.create({
 	},
 	createButton: {
 		marginTop: 50,
-		backgroundColor: '#191919',
+		backgroundColor: '#3C3C3C',
 		borderRadius: 25,
 		alignSelf: 'stretch',
 		minHeight: 50,
@@ -86,7 +91,7 @@ export const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	createButtonText: {
-		fontSize: 18,
+		fontSize: 18.75,
 		fontWeight: 'semibold',
 		color: '#f1f1f1',
 	},
@@ -99,9 +104,11 @@ export const styles = StyleSheet.create({
 		marginLeft: -8,
 	},
 	buttonText: {
-		fontSize: 18,
-		color: '#9C9C9C',
-		fontWeight: 'semibold',
+		fontSize: 18.75,
+		marginLeft: 8,
+		flexWrap: 'wrap',
+		flexShrink: 1,
+		lineHeight: 24,
 	},
 	dialogContainer: {
 		backgroundColor: '#FCFCFC',
@@ -122,6 +129,11 @@ export const styles = StyleSheet.create({
 		fontSize: 18.75,
 		fontWeight: '500',
 	},
-	buttonContainer: {
+	fixedButtonContainer: {
+		width: '100%',
+		position: 'absolute',
+		bottom: 20,
+		zIndex: 2,
+		paddingHorizontal: 70,
 	},
 });
