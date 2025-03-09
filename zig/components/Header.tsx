@@ -18,7 +18,7 @@ const Header = ({ isFormComplete, onConfirm }: HeaderProps) => {
 				onPress={() => router.push('/')}
 			/>
 			<Appbar.Content
-				title="Criar Rolê"
+				title="Criar Roteiro"
 				titleStyle={styles.headerTitle}
 			/>
 		</Appbar.Header>
