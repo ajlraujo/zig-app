@@ -14,13 +14,14 @@ const Header = ({ isFormComplete, onConfirm }: HeaderProps) => {
 		<Appbar.Header style={styles.appBar}>
 			<Appbar.Action
 				icon="close"
-				iconColor='#3C3C3C'
+				iconColor="#3C3C3C"
 				onPress={() => router.push('/')}
 			/>
 			<Appbar.Content
 				title="Criar Roteiro"
 				titleStyle={styles.headerTitle}
 			/>
+			<Appbar.Action icon={undefined} disabled />
 		</Appbar.Header>
 	);
 };
