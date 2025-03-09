@@ -25,9 +25,10 @@ export default function AddEventScreen() {
 	});
 	const [location, setLocation] = useState('');
 	const [description, setDescription] = useState('');
-	const [isTitleFocused, setIsTitleFocused] = useState(false);
 	const dialogRef = useRef<DescriptionDialogHandle>(null);
 	const [dialogVisible, setDialogVisible] = useState(false);
+	const [isTitleFocused, setIsTitleFocused] = useState(false);
+
 
 	const router = useRouter();
 	const {
@@ -205,7 +206,7 @@ export default function AddEventScreen() {
 
 					<TouchableOpacity
 						style={styles.touchableButton}
-						onPress={() => showDialog('location', location)}
+						onPress={() => dialogRef.current?.open()}
 					>
 						<View style={styles.buttonContent}>
 							<IconButton
@@ -238,7 +239,7 @@ export default function AddEventScreen() {
 										color: description ? '#404040' : '#9C9C9C',
 									}
 								]}
-								numberOfLines={4}
+								numberOfLines={2}
 								ellipsizeMode="tail"
 							>
 								{description || 'Adicionar Descrição'}
