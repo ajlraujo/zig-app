@@ -9,6 +9,7 @@ import Header from '../../components/Header';
 import InputDialog from '../../components/InputDialog';
 import ImagePickerComponent from '../../components/ImagePickerComponent';
 import DescriptionDialog, { DescriptionDialogHandle } from '../../components/DescriptionDialog';
+import LocationDialog, { LocationDialogHandle } from '../../components/LocationDialog';
 import { styles } from '../../constants/Styles';
 import useDialog, { DialogType } from '../../hooks/useDialog';
 import { EventData } from '../../types/events';
@@ -26,6 +27,7 @@ export default function AddEventScreen() {
 	const [location, setLocation] = useState('');
 	const [description, setDescription] = useState('');
 	const dialogRef = useRef<DescriptionDialogHandle>(null);
+	const locationDialogRef = useRef<LocationDialogHandle>(null);
 	const [dialogVisible, setDialogVisible] = useState(false);
 	const [isTitleFocused, setIsTitleFocused] = useState(false);
 
@@ -206,7 +208,7 @@ export default function AddEventScreen() {
 
 					<TouchableOpacity
 						style={styles.touchableButton}
-						onPress={() => dialogRef.current?.open()}
+						onPress={() => locationDialogRef.current?.open()}
 					>
 						<View style={styles.buttonContent}>
 							<IconButton
@@ -268,6 +270,11 @@ export default function AddEventScreen() {
 					</Button>
 				</View>
 			</LinearGradient>
+			<LocationDialog
+				ref={locationDialogRef}
+				initialValue={location}
+				onSave={(newLocation) => setLocation(newLocation)}
+			/>
 			<DescriptionDialog
 				ref={dialogRef}
 				visible={dialogVisible}
