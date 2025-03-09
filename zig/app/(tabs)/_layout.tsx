@@ -25,6 +25,7 @@ export default function TabsLayout() {
 			/>
 			<Tabs.Screen name="add" options={{
 				headerShown: false,
+				tabBarStyle: { display: "none" },
 				tabBarIcon: ({ focused, color }) => (
 					<Ionicons
 						name={focused ? "add-sharp" : "add-outline"}
