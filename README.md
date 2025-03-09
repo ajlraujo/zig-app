@@ -29,7 +29,7 @@ Para rodar o projeto localmente, siga os passos abaixo.
 ### 1. Clone este repositório
 
 ```bash
-git clone https://github.com/seu-usuario/zig-app.git
+git clone https://github.com/ajlraujo/zig-app
 ```
 ### 2. Instale as dependências\
 
@@ -75,6 +75,3 @@ O MVP incluirá as seguintes funcionalidades:
 4. Push para a branch (`git push origin feature/nova-feature`).
 5. Abra um Pull Request.
 
-## 📞 Contato
-
-Se você tiver dúvidas, sugestões ou problemas, sinta-se à vontade para entrar em contato com a equipe de desenvolvimento através do email `contato@zigapp.com`.
