@@ -58,7 +58,6 @@ O MVP incluirá as seguintes funcionalidades:
 - **Cadastro de Usuários**: Moradores e turistas podem criar suas contas.
 - **Cadastro de Experiências**: Moradores podem adicionar suas experiências, como roteiros, tours e atividades exclusivas, sem custos para os turistas.
 - **Catálogo de Experiências**: Turistas podem procurar e se inscrever nas experiências criadas pelos moradores.
-- **Avaliação e Feedback**: Após a experiência, os turistas podem avaliar a qualidade da experiência e do anfitrião.
 
 ## 📅 Roadmap
 
