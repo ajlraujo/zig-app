@@ -12,11 +12,11 @@ import DescriptionDialog, { DescriptionDialogHandle } from '../../components/Des
 import LocationDialog, { LocationDialogHandle } from '../../components/LocationDialog';
 import { styles } from '../../constants/Styles';
 import useDialog, { DialogType } from '../../hooks/useDialog';
-import { EventData } from '../../types/events';
-import api from '../../services/api';
+import * as FileSystem from 'expo-file-system';
+
 
 export default function AddEventScreen() {
-	const [image, setImage] = useState<string>('');
+	const [image, setImage] = useState('');
 	const [title, setTitle] = useState('');
 	const [startDate, setStartDate] = useState(new Date());
 	const [endDate, setEndDate] = useState(() => {
@@ -31,6 +31,100 @@ export default function AddEventScreen() {
 	const [dialogVisible, setDialogVisible] = useState(false);
 	const [isTitleFocused, setIsTitleFocused] = useState(false);
 
+	const API_URL = 'https://automatic-wonder-b2bad09ff5.strapiapp.com/api/events';
+	const STRAPI_UPLOAD_URL = 'https://automatic-wonder-b2bad09ff5.strapiapp.com/api/upload';
+	const API_TOKEN = '314a4b586fe0f1414fe16d2bb81444a85b3639a2135ec5ffa9d2ebac2f6aa2fdf7bf9d25c5a987211ebf4abf9decfce3dce6295b62d1f2a6805561b67869bea11b7789dae11d217bd7007644fa09d69377bfb51e1cde2d9ac0b81388f078c91f942a89d3ff828f17ad2c85cda156e01a0b35757c72b5a8c2c6ddb8947f521488'
+
+	const isFormComplete = !!image && !!title && !!description && !!location;
+
+	const handleFileUpload = async () => {
+		try {
+			const formData = new FormData();
+			formData.append('files', {
+				uri: image,
+				name: 'image.jpg',
+				type: 'image/jpeg',
+			});
+
+			const uploadResponse = await fetch(STRAPI_UPLOAD_URL, {
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${API_TOKEN}`,
+				},
+				body: formData,
+			});
+
+
+			if (!uploadResponse.ok) {
+				const errorBody = await uploadResponse.text();
+				console.error(`Erro no upload. Status: ${uploadResponse.status}, Resposta: ${errorBody}`);
+				throw new Error(`Falha ao enviar a imagem. Status: ${uploadResponse.status}`);
+			}
+
+			const uploadedImages = await uploadResponse.json();
+			console.log('Resposta da API após upload:', uploadedImages);
+
+			return uploadedImages[0]?.id;
+		} catch (error) {
+			console.error('Erro no upload do arquivo:', error);
+			throw error;
+		}
+	};
+
+
+	const handleConfirm = async () => {
+		const imageId = await handleFileUpload();
+
+		if (!imageId) {
+			throw new Error('Falha ao enviar a imagem.');
+		}
+
+		if (!isFormComplete) {
+			Alert.alert('Por favor, preencha todos os campos obrigatórios.');
+			return;
+		}
+
+		try {
+
+			const imageId = await handleFileUpload();
+
+
+			if (!imageId) {
+				throw new Error('Falha ao enviar a imagem.');
+			}
+
+			const eventData = {
+				data: {
+					title,
+					startDate: startDate.toISOString(),
+					endDate: endDate.toISOString(),
+					location,
+					description,
+					image: imageId,
+				},
+			};
+
+			const response = await fetch(API_URL, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${API_TOKEN}`,
+				},
+				body: JSON.stringify(eventData),
+			});
+
+			if (!response.ok) {
+				throw new Error('Falha ao criar o evento.');
+			}
+
+			Alert.alert('Roteiro criado com sucesso!');
+			router.back();
+		} catch (error) {
+			console.error('Erro:', error);
+			Alert.alert('Erro', error.message || 'Ocorreu um erro ao criar o roteiro.');
+		}
+	};
+
 
 	const router = useRouter();
 	const {
@@ -43,7 +137,6 @@ export default function AddEventScreen() {
 		saveDialogValue,
 	} = useDialog();
 
-	const isFormComplete = !!image && !!title && !!description && !!location;
 
 	const roundToNearest30 = (date: Date): Date => {
 		const minutes = date.getMinutes();
@@ -54,26 +147,6 @@ export default function AddEventScreen() {
 		roundedDate.setSeconds(0);
 		roundedDate.setMilliseconds(0);
 		return roundedDate;
-	};
-
-	const handleConfirm = async () => {
-		try {
-			const eventData: EventData = {
-				title,
-				startDate: startDate.toISOString(),
-				endDate: endDate.toISOString(),
-				location,
-				description,
-				image,
-			};
-
-			await api.post('/events', { data: eventData });
-			router.push('/');
-		} catch (error: any) {
-			const errorMessage = error.message || 'Erro desconhecido ao criar roteiro';
-			console.error('Erro detalhado:', error);
-			Alert.alert('Erro', errorMessage);
-		}
 	};
 
 	const handleDateChange = (type: 'start' | 'end', selectedDate: Date | undefined) => {
