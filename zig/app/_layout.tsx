@@ -28,6 +28,10 @@ export default function RootLayout() {
 					options={{ headerShown: false }}
 				/>
 				<Stack.Screen
+					name="edit"
+					options={{ headerShown: false }}
+				/>
+				<Stack.Screen
 					name="not-found"
 					options={{ headerShown: false }}
 				/>
