@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, Image, ActivityIndicator, StyleSheet, TouchableOpacity, ScrollView, RefreshControl, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,31 +7,42 @@ import { useAuth } from '@/hooks/useAuth';
 
 const API_URL = 'https://zig-app.onrender.com/api/events?populate=*';
 
-interface Evento {
-	id: number;
-	title: string;
-	startDate: string;
-	endDate: string;
-	location: string;
-	description: string;
-	image: {
-		url: string;
-	};
-}
-
 export default function HomeScreen() {
 	const [loading, setLoading] = useState(true);
 	const [refreshing, setRefreshing] = useState(false);
-	const [eventos, setEventos] = useState<Evento[]>([]);
+	const [events, setEvents] = useState<[]>([]);
 	const [confirmados, setConfirmados] = useState<number[]>([]);
 	const [expandedCards, setExpandedCards] = useState<number[]>([]);
-	const { username } = useAuth();
+	const { username, token, userId } = useAuth();
 
-	const fetchEventos = async () => {
+	const fetchEvents = async () => {
 		try {
 			const response = await fetch(API_URL);
 			const data = await response.json();
-			setEventos(data.data);
+
+			if (!data.data) {
+				console.error('Dados de eventos não encontrados!');
+				return;
+			}
+
+			const eventosFormatados = data.data.map((evento: any) => {
+				if (evento) {
+					return {
+						id: evento.id,
+						title: evento.title,
+						startDate: evento.startDate,
+						endDate: evento.endDate,
+						location: evento.location,
+						description: evento.description,
+						image: evento.image,
+					};
+				} else {
+					console.warn('Evento com dados incompletos:', evento);
+					return null;
+				}
+			}).filter((evento: any) => evento !== null);
+
+			setEvents(eventosFormatados);
 		} catch (error) {
 			console.error('Erro ao buscar eventos:', error);
 		} finally {
@@ -43,13 +54,13 @@ export default function HomeScreen() {
 	useFocusEffect(
 		useCallback(() => {
 			setLoading(true);
-			fetchEventos();
+			fetchEvents();
 		}, [])
 	);
 
 	const onRefresh = () => {
 		setRefreshing(true);
-		fetchEventos();
+		fetchEvents();
 	};
 
 	const formatDate = (startDateString: string, endDateString: string) => {
@@ -68,9 +79,8 @@ export default function HomeScreen() {
 	};
 
 	const handleConfirm = (id: number) => {
-		setConfirmados((prev) =>
-			prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-		);
+		Alert.alert('Confirmação', 'Você confirmou sua presença neste evento!');
+		setConfirmados((prev) => [...prev, id]);
 	};
 
 	const toggleExpand = (id: number) => {
@@ -89,68 +99,67 @@ export default function HomeScreen() {
 		);
 	}
 
+	const renderEvent = (item) => (
+		<TouchableOpacity key={item.id} style={local.card} activeOpacity={0.8} onPress={() => toggleExpand(item.id)}>
+			<View style={local.imageContainer}>
+				<Image
+					source={
+						item.image?.url
+							? { uri: `https://zig-app.onrender.com${item.image.url}` }
+							: require('../../assets/images/placeholder.png')
+					}
+					style={local.image}
+				/>
+			</View>
+			<View style={local.cardContent}>
+				<Text style={local.title}>{item.title}</Text>
+				<View style={local.detailsContainer}>
+					<Ionicons name="calendar-outline" size={16} color="#7D7D7D" />
+					<Text style={local.date}>{formatDate(item.startDate, item.endDate)}</Text>
+				</View>
+				<View style={local.detailsContainer}>
+					<Ionicons name="location-outline" size={16} color="#7D7D7D" />
+					<Text style={local.location}>{item.location}</Text>
+				</View>
+				<Text style={local.description} numberOfLines={expandedCards.includes(item.id) ? undefined : 1}>
+					{item.description}
+				</Text>
+				<View style={local.buttonContainer}>
+					<Button
+						mode="contained"
+						style={[local.button, confirmados.includes(item.id) && local.buttonConfirmed]}
+						labelStyle={local.buttonLabel}
+						onPress={() => handleConfirm(item.id)}
+					>
+						{confirmados.includes(item.id) ? 'Confirmado!' : 'Quero ir'}
+					</Button>
+				</View>
+			</View>
+		</TouchableOpacity>
+	);
+
 	return (
-		<View style={styles.container}>
-			<Text style={styles.headerText}>
+		< ScrollView contentContainerStyle={local.container} >
+			<Text style={local.headerText}>
 				Olá, {username ? username : 'Visitante'}! Qual o roteiro de hoje?
 			</Text>
-			<FlatList
-				data={eventos}
-				keyExtractor={(item) => item.id.toString()}
-				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-				renderItem={({ item }) => (
-					<TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => toggleExpand(item.id)}>
-						<View style={styles.imageContainer}>
-							<Image
-								source={
-									item.image?.url
-										? { uri: `https://zig-app.onrender.com${item.image.url}` }
-										: require('../../assets/images/placeholder.png')
-								}
-								style={styles.image}
-							/>
-						</View>
-						<View style={styles.cardContent}>
-							<Text style={styles.title}>{item.title}</Text>
-							<View style={styles.detailsContainer}>
-								<Ionicons name="calendar-outline" size={16} color="#7D7D7D" />
-								<Text style={styles.date}>{formatDate(item.startDate, item.endDate)}</Text>
-							</View>
-							<View style={styles.detailsContainer}>
-								<Ionicons name="location-outline" size={16} color="#7D7D7D" />
-								<Text style={styles.location}>{item.location}</Text>
-							</View>
-							<Text style={styles.description} numberOfLines={expandedCards.includes(item.id) ? undefined : 1}>
-								{item.description}
-							</Text>
-							<View style={styles.buttonContainer}>
-								<Button
-									mode="contained"
-									style={[styles.button, confirmados.includes(item.id) && styles.buttonConfirmed]}
-									labelStyle={styles.buttonLabel}
-									onPress={() => handleConfirm(item.id)}
-								>
-									{confirmados.includes(item.id) ? 'Confirmado!' : 'Quero ir'}
-								</Button>
-							</View>
-						</View>
-					</TouchableOpacity>
-				)}
-			/>
-		</View>
-	);
+			{events.map(renderEvent)}
+		</ScrollView >
+	)
 }
 
-const styles = StyleSheet.create({
+const local = StyleSheet.create({
 	container: {
-		flex: 1,
-		padding: 20,
-		backgroundColor: '#FAF8F5',
+		flexGrow: 1,
+		justifyContent: "flex-start",
+		alignItems: "center",
+		backgroundColor: "#f5f5f5",
+		paddingTop: 50,
+		paddingHorizontal: 10,
 	},
 	headerText: {
-		fontSize: 22,
-		fontWeight: 'bold',
-		color: '#333',
+		fontSize: 24,
+		fontWeight: "bold",
 		marginBottom: 20,
 	},
 	card: {
@@ -158,10 +167,11 @@ const styles = StyleSheet.create({
 		borderRadius: 20,
 		marginBottom: 20,
 		paddingBottom: 25,
+		width: "90%",
 	},
 	imageContainer: {
 		width: '100%',
-		height: 250,
+		height: 200,
 		backgroundColor: '#E0E0E0',
 		borderRadius: 20,
 	},
@@ -206,10 +216,9 @@ const styles = StyleSheet.create({
 		borderRadius: 20,
 	},
 	buttonConfirmed: {
-		backgroundColor: '#4CAF50',
+		backgroundColor: '#E1E958',
 	},
 	buttonLabel: {
 		fontSize: 16,
 	},
 });
-
