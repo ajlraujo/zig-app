@@ -76,7 +76,7 @@ export default function AuthScreen() {
 						/>
 					</View>
 
-					<Text style={local.title} variant="headlineLarge">Bem vindo de volta!</Text>
+					<Text style={local.title} variant="headlineLarge">Conclua seu login</Text>
 
 					<View style={local.formContainer}>
 						<TextInput
