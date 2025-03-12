@@ -81,7 +81,7 @@ export default function SigninScreen() {
 
 					<View style={local.formContainer}>
 						<TextInput
-							label="Nome"
+							label="Nome de usuário"
 							mode="outlined"
 							style={local.input}
 							theme={inputTheme}
@@ -91,7 +91,7 @@ export default function SigninScreen() {
 							textColor="#242424"
 							value={username}
 							disabled={isLoading}
-							accessibilityLabel="Insira seu nome completo"
+							accessibilityLabel="Insira seu nome de usuário"
 						/>
 						<TextInput
 							label="E-mail"

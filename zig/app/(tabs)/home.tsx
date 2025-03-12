@@ -23,8 +23,8 @@ export default function HomeScreen() {
 	const [refreshing, setRefreshing] = useState(false);
 	const [eventos, setEventos] = useState<Evento[]>([]);
 	const [confirmados, setConfirmados] = useState<number[]>([]);
-	// Estado para controlar quais cards estão expandidos
 	const [expandedCards, setExpandedCards] = useState<number[]>([]);
+	const [userName, setUserName] = useState('Lucas'); // Altere para buscar dinamicamente o nome do usuário
 
 	const fetchEventos = async () => {
 		try {
@@ -72,13 +72,10 @@ export default function HomeScreen() {
 		);
 	};
 
-	// Alterna o estado de expansão do card
 	const toggleExpand = (id: number) => {
-		if (expandedCards.includes(id)) {
-			setExpandedCards(expandedCards.filter(expandedId => expandedId !== id));
-		} else {
-			setExpandedCards([...expandedCards, id]);
-		}
+		setExpandedCards((prev) =>
+			prev.includes(id) ? prev.filter(expandedId => expandedId !== id) : [...prev, id]
+		);
 	};
 
 	if (loading) {
@@ -91,11 +88,17 @@ export default function HomeScreen() {
 		);
 	}
 
+	// Componente de cabeçalho que será renderizado dentro da FlatList
+	const renderHeader = () => (
+		<Text style={styles.headerText}>Olá, {userName}! Qual o roteiro de hoje?</Text>
+	);
+
 	return (
 		<View style={styles.container}>
 			<FlatList
 				data={eventos}
 				keyExtractor={(item) => item.id.toString()}
+				ListHeaderComponent={renderHeader}
 				refreshControl={
 					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
 				}
@@ -125,7 +128,6 @@ export default function HomeScreen() {
 								<Ionicons name="location-outline" size={16} color="#7D7D7D" />
 								<Text style={styles.location}>{item.location}</Text>
 							</View>
-							{/* Exibe somente a primeira linha se o card não estiver expandido */}
 							<Text
 								style={styles.description}
 								numberOfLines={expandedCards.includes(item.id) ? undefined : 1}
@@ -160,6 +162,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 		padding: 20,
 		backgroundColor: '#FAF8F5',
+	},
+	headerText: {
+		fontSize: 22,
+		fontWeight: 'bold',
+		color: '#333',
+		marginBottom: 20,
 	},
 	card: {
 		backgroundColor: '#FFFFFF',
