@@ -15,7 +15,7 @@ const Header = ({ isFormComplete, onConfirm }: HeaderProps) => {
 			<Appbar.Action
 				icon="close"
 				iconColor="#3C3C3C"
-				onPress={() => router.push('/')}
+				onPress={() => router.push('/home')}
 			/>
 			<Appbar.Content
 				title="Criar Roteiro"
