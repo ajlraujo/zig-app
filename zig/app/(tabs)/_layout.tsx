@@ -12,7 +12,7 @@ export default function TabsLayout() {
 				tabBarShowLabel: false,
 			}}
 		>
-			<Tabs.Screen name="index" options={{
+			<Tabs.Screen name="home" options={{
 				headerShown: false,
 				tabBarIcon: ({ focused, color }) => (
 					<Ionicons
