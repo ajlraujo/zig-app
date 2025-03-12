@@ -18,7 +18,7 @@ O Zig propõe uma nova forma de turismo, focada em experiências autênticas e p
 
 - **Frontend**: React Native
 - **Backend**: Node.js (Express)
-- **Banco de Dados**: MongoDB (ou outra solução escalável)
+- **Banco de Dados**: PostgreSQL
 - **Autenticação**: JWT (JSON Web Token)
 - **Geolocalização**: APIs de geolocalização para sugerir experiências baseadas na localização do usuário
 
