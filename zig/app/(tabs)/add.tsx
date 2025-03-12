@@ -4,18 +4,18 @@ import { IconButton, Button } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/hooks/useAuth';
 
-import Header from '../../components/Header';
-import InputDialog from '../../components/InputDialog';
-import ImagePickerComponent from '../../components/ImagePickerComponent';
-import DescriptionDialog, { DescriptionDialogHandle } from '../../components/DescriptionDialog';
-import LocationDialog, { LocationDialogHandle } from '../../components/LocationDialog';
-import { styles } from '../../constants/Styles';
-import useDialog, { DialogType } from '../../hooks/useDialog';
-import * as FileSystem from 'expo-file-system';
-
+import Header from '@/components/Header';
+import InputDialog from '@/components/InputDialog';
+import ImagePickerComponent from '@/components/ImagePickerComponent';
+import DescriptionDialog, { DescriptionDialogHandle } from '@/components/DescriptionDialog';
+import LocationDialog, { LocationDialogHandle } from '@/components/LocationDialog';
+import { styles } from '@/constants/Styles';
+import useDialog, { DialogType } from '@/hooks/useDialog';
 
 export default function AddEventScreen() {
+	const { userId, token, error } = useAuth();
 	const [image, setImage] = useState('');
 	const [title, setTitle] = useState('');
 	const [startDate, setStartDate] = useState(new Date());
@@ -26,34 +26,35 @@ export default function AddEventScreen() {
 	});
 	const [location, setLocation] = useState('');
 	const [description, setDescription] = useState('');
+	const [loading, setLoading] = useState(false);
+
 	const dialogRef = useRef<DescriptionDialogHandle>(null);
 	const locationDialogRef = useRef<LocationDialogHandle>(null);
 	const [dialogVisible, setDialogVisible] = useState(false);
 	const [isTitleFocused, setIsTitleFocused] = useState(false);
 
-	const API_URL = 'https://automatic-wonder-b2bad09ff5.strapiapp.com/api/events';
-	const STRAPI_UPLOAD_URL = 'https://automatic-wonder-b2bad09ff5.strapiapp.com/api/upload';
-	const API_TOKEN = '314a4b586fe0f1414fe16d2bb81444a85b3639a2135ec5ffa9d2ebac2f6aa2fdf7bf9d25c5a987211ebf4abf9decfce3dce6295b62d1f2a6805561b67869bea11b7789dae11d217bd7007644fa09d69377bfb51e1cde2d9ac0b81388f078c91f942a89d3ff828f17ad2c85cda156e01a0b35757c72b5a8c2c6ddb8947f521488'
+	const API_URL = 'https://zig-app.onrender.com/api/events';
+	const STRAPI_UPLOAD_URL = 'https://zig-app.onrender.com/api/upload';
 
 	const isFormComplete = !!image && !!title && !!description && !!location;
 
 	const handleFileUpload = async () => {
+
 		try {
 			const formData = new FormData();
 			formData.append('files', {
 				uri: image,
 				name: 'image.jpg',
 				type: 'image/jpeg',
-			});
+			} as any);
 
 			const uploadResponse = await fetch(STRAPI_UPLOAD_URL, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${API_TOKEN}`,
+					'Authorization': `Bearer ${token}`,
 				},
 				body: formData,
 			});
-
 
 			if (!uploadResponse.ok) {
 				const errorBody = await uploadResponse.text();
@@ -71,12 +72,25 @@ export default function AddEventScreen() {
 		}
 	};
 
+	const resetForm = () => {
+		setImage('');
+		setTitle('');
+		setStartDate(new Date());
+		setEndDate(() => {
+			const date = new Date();
+			date.setHours(date.getHours() + 1);
+			return date;
+		});
+		setLocation('');
+		setDescription('');
+	};
 
 	const handleConfirm = async () => {
-		const imageId = await handleFileUpload();
 
-		if (!imageId) {
-			throw new Error('Falha ao enviar a imagem.');
+		if (!token) {
+			Alert.alert('Erro', 'Faça login novamente');
+			router.push('/login');
+			return;
 		}
 
 		if (!isFormComplete) {
@@ -84,10 +98,11 @@ export default function AddEventScreen() {
 			return;
 		}
 
+		setLoading(true);
+
 		try {
-
+			// Inicia o upload da imagem e o envio dos dados do evento
 			const imageId = await handleFileUpload();
-
 
 			if (!imageId) {
 				throw new Error('Falha ao enviar a imagem.');
@@ -101,30 +116,46 @@ export default function AddEventScreen() {
 					location,
 					description,
 					image: imageId,
+					ownerID: {
+						user: userId,
+					}
 				},
 			};
+
+			console.log('Payload do evento:', JSON.stringify(eventData, null, 2));
 
 			const response = await fetch(API_URL, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${API_TOKEN}`,
+					Authorization: `Bearer ${token}`,
 				},
 				body: JSON.stringify(eventData),
 			});
 
+			const result = await response.json();
+
 			if (!response.ok) {
-				throw new Error('Falha ao criar o evento.');
+				console.error('Erro ao criar evento:', result);
+				await fetch(`${STRAPI_UPLOAD_URL}/files/${imageId}`, {
+					method: 'DELETE',
+					headers: {
+						'Authorization': `Bearer ${token}`,
+					},
+				});
+				throw new Error(`Falha ao criar evento. Resposta: ${JSON.stringify(result)}`);
 			}
 
 			Alert.alert('Roteiro criado com sucesso!');
+			resetForm();
 			router.back();
-		} catch (error) {
+		} catch (error: any) {
 			console.error('Erro:', error);
 			Alert.alert('Erro', error.message || 'Ocorreu um erro ao criar o roteiro.');
+		} finally {
+			setLoading(false);
 		}
 	};
-
 
 	const router = useRouter();
 	const {
@@ -136,7 +167,6 @@ export default function AddEventScreen() {
 		hideDialog,
 		saveDialogValue,
 	} = useDialog();
-
 
 	const roundToNearest30 = (date: Date): Date => {
 		const minutes = date.getMinutes();
@@ -336,10 +366,12 @@ export default function AddEventScreen() {
 					<Button
 						mode="contained"
 						onPress={handleConfirm}
-						disabled={!isFormComplete}
+						disabled={!isFormComplete || loading}
 						style={[styles.createButton, { width: '80%', alignSelf: 'center' }]}
 						labelStyle={styles.createButtonText}
-					>Publicar
+						loading={loading}  // Exibe indicador de loading no botão
+					>
+						Publicar
 					</Button>
 				</View>
 			</LinearGradient>
