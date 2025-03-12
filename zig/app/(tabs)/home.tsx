@@ -3,6 +3,7 @@ import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, TouchableOp
 import { useFocusEffect } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/hooks/useAuth';
 
 const API_URL = 'https://zig-app.onrender.com/api/events?populate=*';
 
@@ -24,7 +25,7 @@ export default function HomeScreen() {
 	const [eventos, setEventos] = useState<Evento[]>([]);
 	const [confirmados, setConfirmados] = useState<number[]>([]);
 	const [expandedCards, setExpandedCards] = useState<number[]>([]);
-	const [userName, setUserName] = useState('Lucas'); // Altere para buscar dinamicamente o nome do usuário
+	const { username } = useAuth();
 
 	const fetchEventos = async () => {
 		try {
@@ -88,26 +89,17 @@ export default function HomeScreen() {
 		);
 	}
 
-	// Componente de cabeçalho que será renderizado dentro da FlatList
-	const renderHeader = () => (
-		<Text style={styles.headerText}>Olá, {userName}! Qual o roteiro de hoje?</Text>
-	);
-
 	return (
 		<View style={styles.container}>
+			<Text style={styles.headerText}>
+				Olá, {username ? username : 'Visitante'}! Qual o roteiro de hoje?
+			</Text>
 			<FlatList
 				data={eventos}
 				keyExtractor={(item) => item.id.toString()}
-				ListHeaderComponent={renderHeader}
-				refreshControl={
-					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-				}
+				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 				renderItem={({ item }) => (
-					<TouchableOpacity
-						style={styles.card}
-						activeOpacity={0.8}
-						onPress={() => toggleExpand(item.id)}
-					>
+					<TouchableOpacity style={styles.card} activeOpacity={0.8} onPress={() => toggleExpand(item.id)}>
 						<View style={styles.imageContainer}>
 							<Image
 								source={
@@ -128,25 +120,17 @@ export default function HomeScreen() {
 								<Ionicons name="location-outline" size={16} color="#7D7D7D" />
 								<Text style={styles.location}>{item.location}</Text>
 							</View>
-							<Text
-								style={styles.description}
-								numberOfLines={expandedCards.includes(item.id) ? undefined : 1}
-							>
+							<Text style={styles.description} numberOfLines={expandedCards.includes(item.id) ? undefined : 1}>
 								{item.description}
 							</Text>
 							<View style={styles.buttonContainer}>
 								<Button
 									mode="contained"
-									style={[
-										styles.button,
-										confirmados.includes(item.id) && styles.buttonConfirmed,
-									]}
+									style={[styles.button, confirmados.includes(item.id) && styles.buttonConfirmed]}
 									labelStyle={styles.buttonLabel}
 									onPress={() => handleConfirm(item.id)}
 								>
-									{confirmados.includes(item.id)
-										? 'Confirmado!'
-										: 'Quero ir'}
+									{confirmados.includes(item.id) ? 'Confirmado!' : 'Quero ir'}
 								</Button>
 							</View>
 						</View>
@@ -228,3 +212,4 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 	},
 });
+
